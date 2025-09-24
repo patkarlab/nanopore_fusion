@@ -30,12 +30,12 @@ sample2
 sample3
 Please check for empty lines in the samplesheet before running the pipeline.
 
-##Running the pipeline
+## Running the pipeline
 The pipeline can be run by running the command-
 
 ```bash
 nextflow run . -entry ACTREC_NANOPORE_FUSION --input samplesheet.csv --outdir results  -profile docker -ansi-log false  -resume  -bg
 ```
 
-##Output
+## Output
 The outputs are saved in *results/* folder.
