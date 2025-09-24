@@ -30,9 +30,9 @@ https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/GRCh38_gencode_v22_CTA
 1. Transfer the `fastq.gz` files to the `sequences/` folder.
 
 2. The samplesheet is `samplesheet.csv`. The sample_ids, without the file extension, should be mentioned in samplesheet in the following format-
-sample1
-sample2
-sample3
+sample1 
+sample2  
+sample3  
 Please check for empty lines in the samplesheet before running the pipeline.
 
 

@@ -1,0 +1,109 @@
+<!--
+  ~ Copyright 2013-2023, Seqera Labs
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+<pre class="mermaid" style="text-align: center;">
+flowchart TB
+    subgraph " "
+    v0["Channel.fromPath"]
+    v7["reference_genome"]
+    v10["bed_coverage"]
+    v12["gtf"]
+    v14["reference_genome"]
+    v16["gtf"]
+    v17["genion_cdna"]
+    v18["genion_superdups"]
+    v20["ctat_genome_lib_dir"]
+    v24["reference_genome"]
+    v25["gtfv104"]
+    end
+    subgraph ACTREC_NANOPORE_FUSION
+    subgraph NANOPORE_FUSION
+    v4([SEQKIT])
+    v5([HISTOGRAM])
+    v8([DORADO_ALIGN])
+    v9([SAMTOOLS_SORT])
+    v11([COVERAGE])
+    v13([LONGGF])
+    v15([MINIMAP_ALIGN])
+    v19([GENION])
+    v21([CTAT])
+    v23([COORD_SORT])
+    v26([FUSIONSEEKER])
+    v31([COLLECTOUT])
+    v36([REFORMATFUSVIZ])
+    v1(( ))
+    v27(( ))
+    v33(( ))
+    end
+    end
+    subgraph " "
+    v6[" "]
+    v22[" "]
+    v32[" "]
+    v37[" "]
+    end
+    v0 --> v1
+    v1 --> v4
+    v4 --> v5
+    v5 --> v6
+    v7 --> v8
+    v1 --> v8
+    v8 --> v9
+    v8 --> v23
+    v9 --> v11
+    v9 --> v13
+    v10 --> v11
+    v11 --> v27
+    v12 --> v13
+    v13 --> v27
+    v13 --> v33
+    v14 --> v15
+    v1 --> v15
+    v15 --> v19
+    v16 --> v19
+    v17 --> v19
+    v18 --> v19
+    v1 --> v19
+    v19 --> v27
+    v19 --> v33
+    v20 --> v21
+    v1 --> v21
+    v21 --> v22
+    v21 --> v27
+    v21 --> v33
+    v23 --> v26
+    v24 --> v26
+    v25 --> v26
+    v26 --> v27
+    v26 --> v33
+    v1 --> v31
+    v27 --> v31
+    v31 --> v32
+    v1 --> v36
+    v33 --> v36
+    v36 --> v37
+
+</pre>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+</body>
+</html>
