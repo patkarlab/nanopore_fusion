@@ -2,14 +2,24 @@
 
 ## Introduction
 
-**actrec/nanopore_fusion** is a bioinformatics pipeline for calling fusions from long-read RNA sequencing data. The outputs from fusion callers (CTAT-LR-fusion, genion, LongGF and FusionSeeker) are collected in single multisheet excel file, along with the coverage in the target regions. It also collates the fusion caller outputs into a single excel sheet, which can be used as input for `fusviz`, which is a web-browser app to visualise, interpret and prioritise genomic/transcriptomic structural variations. Other outputs include a fusion visualization report in html format from CTAT-LR-fusion, a read length histogram for the fastq inputs and also sorted,indexed bam files.
+**actrec/nanopore_fusion** is a modular, computational pipeline for identification of gene fusions from long-read RNA sequencing data. The pipeline is implemented in Nextflow. It utilzes long read data in FASTQ format, aligns the reads to human genome, and calls RNA fusions. It also integrates results from multiple fusion detection tools (CTAT-LR-fusion, Genion, LongGF, and FusionSeeker) and compiles them into a single spreadsheet, which includes fusion calls, as well as coverage information across target regions. Additionally, the pipeline generates a merged TSV file that can be directly used as input for FusViz, a web-based application for visualizing, interpreting, and prioritizing genomic and transcriptomic structural variations. Other key outputs include - 
+- An interactive HTML fusion visualization report from CTAT-LR-fusion
+- A read length distribution histogram for the FASTQ inputs
+- Sorted and indexed BAM files
+
+## Pipeline summary
+
+<p align="center">
+<img src="./img/Nanopore_fusion_pipeline_dag.png" width="800">
+</p>
+
 
 
 ## Usage
 
-The follwing parameters need to be modified in the `params` section of the `nextflow.config` - 
+The following parameters are required to be modified in the `params` section of the `nextflow.config` - 
 
-- *genome* = The Reference genome for this pipeline can be downloaded from https://storage.googleapis.com/genomics-public-data/resources/broad/hg38/v0/Homo_sapiens_assembly38.fasta
+- *genome* = The Reference genome for the pipeline can be downloaded from -  https://storage.googleapis.com/genomics-public-data/resources/broad/hg38/v0/Homo_sapiens_assembly38.fasta
 
 - *gtf* = The GTF file for Genion and LongGF can be downloaded from -
 ftp://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz
@@ -17,9 +27,9 @@ ftp://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.g
 - *gtf_2* = The GTF file for fusionseeker can be downloaded from -
 ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.gtf.gz
 
-Please check if the chromosome names are matching in Reference genome and the GTF files.
+Please check if the chromosome names are matching in the Reference genome and the GTF files.
 
-- *cdna* & *superdups* = Genion additionally needs 'cdna.selfalign.tsv' and 'genomicSuperDups.txt' as input. These files need to be generated as per instructions on Genion github -  https://github.com/vpc-ccg/genion?tab=readme-ov-file#input
+- *cdna* & *superdups* = Genion additionally requires 'cdna.selfalign.tsv' and 'genomicSuperDups.txt' as input. These files need to be generated as per instructions on Genion github -  https://github.com/vpc-ccg/genion?tab=readme-ov-file#input
 
 - *genome_lib* = CTAT-LR-fusion requires CTAT genome lib, which can be downloaded from -
 https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/GRCh38_gencode_v22_CTAT_lib_Mar012021.source.tar.gz
