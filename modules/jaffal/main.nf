@@ -1,7 +1,7 @@
 process JAFFAL {
 
     label 'process_medium'
-    publishDir "results/${samples}", mode:'copy'
+    //publishDir "results/${samples}", mode:'copy'
     tag "${samples}"
 
 
@@ -10,7 +10,7 @@ process JAFFAL {
 
     output:
     tuple val(samples), path("${samples}_jaffal.tsv"),    emit: jaffal_tsv
-    tuple val(samples), path("${samples}_jaffal.fasta")  
+    //tuple val(samples), path("${samples}_jaffal.fasta")  
 
 
     script:

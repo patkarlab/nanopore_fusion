@@ -21,7 +21,7 @@ process COVERAGE_MOSDEPTH {
 process MOSDEPTH_SUMMARY {
         tag "${samples}"
         label 'process_medium'
-        publishDir "results/${samples}", mode:'copy'
+        //publishDir "results/${samples}", mode:'copy'
         input:
                 tuple val(samples), path(thr_file), path(region_file)
 

@@ -5,4 +5,4 @@ export PATH="$JAVA_HOME/bin:$PATH"
 export NXF_VER=23.10.1
 
 
-nextflow run . -entry ACTREC_NANOPORE_FUSION --input samplesheet.csv --outdir results  -profile docker -ansi-log false -resume
+nextflow run . -entry ACTREC_NANOPORE_FUSION --input samplesheet.csv --outdir results  -profile docker -ansi-log false -resume -bg

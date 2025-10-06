@@ -3,7 +3,7 @@
 process CTAT {
 	tag "${samples}"
 	label 'process_high'
-	publishDir  "results/${samples}/", mode: 'copy'
+	publishDir  "results/${samples}/", mode: 'copy', pattern: '*.html'
 	input:
 		tuple val(samples), path(reads)
 		file(ctat_genome_lib_dir)

@@ -3,7 +3,7 @@
 process DORADO_ALIGN {
 	tag "${samples}"
 	label 'process_medium'
-	publishDir "results/${samples}", mode:'copy'    
+	//publishDir "results/${samples}", mode:'copy'    
 	input:
 		tuple val(samples), path(reads) 
 		file(reference_genome)

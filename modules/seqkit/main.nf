@@ -3,7 +3,7 @@
 process SEQKIT{
 	tag "${samples}"
 	label 'process_medium'
-	publishDir "results/${samples}", mode:'copy'
+	//publishDir "results/${samples}", mode:'copy'
 	input:
 		tuple val(samples), path(reads)
 	output:

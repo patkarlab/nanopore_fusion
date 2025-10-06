@@ -3,7 +3,7 @@
 process FUSIONSEEKER {
 	tag "${samples}"
 	label 'process_medium'
-	publishDir "results/${samples}", mode:'copy'
+	//publishDir "results/${samples}", mode:'copy'
 	input:
 		tuple val(samples), file( coord_sorted_bam)
 		tuple val(samples), file (bam_index)

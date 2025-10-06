@@ -3,7 +3,7 @@
 process SAMTOOLS_SORT {
 	tag "${samples}"
 	label 'process_medium'
-	publishDir "results/${samples}", mode:'copy'
+	//publishDir "results/${samples}", mode:'copy'
 	input:
 		tuple val(samples), file(dorado_bam)
 	output:
