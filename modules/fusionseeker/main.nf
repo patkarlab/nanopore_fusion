@@ -14,7 +14,9 @@ process FUSIONSEEKER {
 	script:
 	"""
 	fusionseeker --bam ${samples}_coord_sorted.bam --datatype nanopore --minsupp 5 --thread 64 -o ${samples}_fusionseeker_out --gtf ${gtfv104} --ref ${reference_genome} 
-	awk 'BEGIN{OFS="\t"} { print \$2,\$3,\$4,\$5,\$6,\$7,\$8}' ${samples}_fusionseeker_out/confident_genefusion.txt  > ${samples}_fusionseeker_out/${samples}_fusionseeker_final.tsv
+	awk 'BEGIN{OFS="\t"} { print \$2,\$3,\$4,\$5,\$6,\$7,\$8}' ${samples}_fusionseeker_out/confident_genefusion.txt  > ${samples}_fusionseeker_out/${samples}_fusionseeker_int.tsv
+	(head -n 1 ${samples}_fusionseeker_out/${samples}_fusionseeker_int.tsv && \
+tail -n +2 ${samples}_fusionseeker_out/${samples}_fusionseeker_int.tsv | sort -t $'\t' -k3,3nr) > ${samples}_fusionseeker_out/${samples}_fusionseeker_final.tsv
 	cp ${samples}_fusionseeker_out/${samples}_fusionseeker_final.tsv ${samples}_fusionseeker_final.tsv
 	"""
 

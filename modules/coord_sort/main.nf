@@ -7,8 +7,7 @@ process COORD_SORT {
 	input:
 		tuple val(samples), file(dorado_bam)
 	output:
-		tuple val(samples), path("${samples}_coord_sorted.bam"),  emit: coord_sorted_bam
-		tuple val(samples), path("${samples}_coord_sorted.bam.bai"), emit: bam_index
+		tuple val(samples), path("${samples}_coord_sorted.bam"), path("${samples}_coord_sorted.bam.bai")
 	script:
 	"""
 	samtools sort -o ${samples}_coord_sorted.bam ${dorado_bam}

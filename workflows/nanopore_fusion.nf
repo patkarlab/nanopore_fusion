@@ -17,7 +17,7 @@ include { GENION }	         		from '../modules/genion/main'
 include { CTAT}                 	from '../modules/ctat/main'
 include { JAFFAL}               	from '../modules/jaffal/main'
 include { COORD_SORT} 				from '../modules/coord_sort/main'
-include { FUSIONSEEKER} 			from '../modules/fusionseeker/main'
+//include { FUSIONSEEKER} 			from '../modules/fusionseeker/main'
 include { COLLECTOUT}           	from '../modules/collectout/main'
 include { REFORMATFUSVIZ }			from '../modules/reformatFusviz/main'
 
@@ -68,7 +68,7 @@ workflow NANOPORE_FUSION {
     MINIMAP_ALIGN (samples_ch, reference_genome )
 
     // call fusions on paf using genion
-    GENION (samples_ch, MINIMAP_ALIGN.out.minimap_paf, gtf, genion_cdna, genion_superdups )
+    GENION (samples_ch.join(MINIMAP_ALIGN.out.minimap_paf), gtf, genion_cdna, genion_superdups )
 
     //ctat-lr-fusion for RNA fusion
     CTAT(samples_ch, ctat_genome_lib_dir ) 
@@ -80,20 +80,20 @@ workflow NANOPORE_FUSION {
     COORD_SORT(DORADO_ALIGN.out.dorado_bam )
 
     //call RNA fusion on dorado coord-sorted bam
-    FUSIONSEEKER(COORD_SORT.out.coord_sorted_bam, COORD_SORT.out.bam_index, reference_genome, gtfv104 )
+    //FUSIONSEEKER(COORD_SORT.out.coord_sorted_bam, COORD_SORT.out.bam_index, reference_genome, gtfv104 )
 
 	//calculate coverage over target regions from sorted bam using bedtools
-    COVERAGE(COORD_SORT.out.coord_sorted_bam, bed_coverage )
+    COVERAGE(COORD_SORT.out, bed_coverage )
 
     // Calculate coverage over set thresholds in target regions from sorted, indexed bam using mosdepth
-    COVERAGE_MOSDEPTH(COORD_SORT.out.coord_sorted_bam, COORD_SORT.out.bam_index, bed_coverage ) | MOSDEPTH_SUMMARY
+    COVERAGE_MOSDEPTH(COORD_SORT.out, bed_coverage ) | MOSDEPTH_SUMMARY
 
     //script to collect output from all fusioncallers into one spreadsheet per sample
-    COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(FUSIONSEEKER.out.fus_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out)))))))
+    COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
 
 
     //script to merge and aggregate fusioncaller output to be used as fusviz input
-    //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(FUSIONSEEKER.out))))
+    //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
 
 
 

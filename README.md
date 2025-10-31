@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**actrec/nanopore_fusion** is a modular, computational pipeline for identification of gene fusions from long-read RNA sequencing data. The pipeline is implemented in Nextflow. It utilzes long read data in FASTQ format, aligns the reads to human genome, and calls RNA fusions. It also integrates results from multiple fusion detection tools (Jaffal, CTAT-LR-fusion, Genion, LongGF, and FusionSeeker) and compiles them into a single spreadsheet, which includes fusion calls, as well as coverage information across target regions. Additionally, the pipeline generates a merged TSV file that can be directly used as input for FusViz, a web-based application for visualizing, interpreting, and prioritizing genomic and transcriptomic structural variations. Other key outputs include - 
+**actrec/nanopore_fusion** is a modular, computational pipeline for identification of gene fusions from long-read RNA sequencing data. The pipeline is implemented in Nextflow. It utilzes long read data in FASTQ format, aligns the reads to human genome, and calls RNA fusions. It also integrates results from multiple fusion detection tools (Jaffal, CTAT-LR-fusion, Genion and LongGF) and compiles them into a single spreadsheet, which includes fusion calls, as well as coverage information across target regions. Additionally, the pipeline generates a merged TSV file that can be directly used as input for FusViz, a web-based application for visualizing, interpreting, and prioritizing genomic and transcriptomic structural variations. Other key outputs include - 
 - An interactive HTML fusion visualization report from CTAT-LR-fusion
 - A read length distribution histogram for the FASTQ inputs
 - Sorted and indexed BAM files
@@ -23,9 +23,6 @@ The following parameters are required to be modified in the `params` section of 
 
 - *gtf* = The GTF file for Genion and LongGF can be downloaded from -
 ftp://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz
-
-- *gtf_2* = The GTF file for fusionseeker can be downloaded from -
-ftp://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.gtf.gz
 
 Please check if the chromosome names are matching in the Reference genome and the GTF files.
 

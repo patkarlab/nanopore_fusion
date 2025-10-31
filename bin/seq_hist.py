@@ -16,8 +16,8 @@ if (os.path.exists(seq_summary)) and (os.path.getsize(seq_summary) != 0):
     bins = [0, 100, 200, 300, 400, 500, 600,700,800, 900,1000,1100,1200,1300, 1400,1500,1600,1700,1800,1900,2000]
     plt.hist(df.length, bins=bins,color='cadetblue', edgecolor='black')
 
-    plt.xlabel('Values')
-    plt.ylabel('Frequency')
+    plt.xlabel('Read Length(bases)')
+    plt.ylabel('Read Count')
     plt.title('Histogram of read lengths')
 
     plt.savefig(hist_out)

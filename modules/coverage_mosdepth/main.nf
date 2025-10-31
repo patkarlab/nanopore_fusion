@@ -5,8 +5,7 @@ process COVERAGE_MOSDEPTH {
         label 'process_medium'
         //publishDir "results/${samples}/", mode:'copy'
         input:
-                tuple val(samples), path(sorted_bam)
-				tuple val(samples), path(bam_index)
+                tuple val(samples), path(sorted_bam), path(bam_index)
 				path(bed_coverage)
         output:
                 tuple val(samples), path("${samples}.thresholds.bed.gz"), path("${samples}.regions.bed.gz")
@@ -14,9 +13,9 @@ process COVERAGE_MOSDEPTH {
         script:
         """
         mosdepth --by ${bed_coverage} --thresholds 1,10,30,100,200 ${samples} ${sorted_bam}
-
 		"""
 }
+
 
 process MOSDEPTH_SUMMARY {
         tag "${samples}"
@@ -30,6 +29,7 @@ process MOSDEPTH_SUMMARY {
         script:
         """
         mosdepth_coverage.py -t ${thr_file} -r ${region_file} -o ${samples}_cov_mosdepth.tsv
+
         """
 }
 

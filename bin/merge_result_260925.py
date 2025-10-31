@@ -12,12 +12,12 @@ jaffal = args[2]
 longgf = args[3]
 geneion = args[4]
 ctat = args[5]
-fusionseeker = args[6]
-coverage = args[7]
-mosdepth_coverage = args[8]
-outfile = args[9]
+#fusionseeker = args[6]
+coverage = args[6]
+mosdepth_coverage = args[7]
+outfile = args[8]
 
-csvfilenames = [ jaffal, longgf, geneion, ctat, fusionseeker, coverage, mosdepth_coverage]
+csvfilenames = [ jaffal, longgf, geneion, ctat, coverage, mosdepth_coverage]
 writer = pd.ExcelWriter(outfile)
 for csvfilename in csvfilenames:
         if (os.path.exists(csvfilename)) and (os.path.getsize(csvfilename) != 0):
