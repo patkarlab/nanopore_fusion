@@ -19,6 +19,7 @@ include { JAFFAL}               	from '../modules/jaffal/main'
 include { COORD_SORT} 				from '../modules/coord_sort/main'
 //include { FUSIONSEEKER} 			from '../modules/fusionseeker/main'
 include { COLLECTOUT}           	from '../modules/collectout/main'
+include { DASHBOARD }				from '../modules/dashboard/main'
 include { REFORMATFUSVIZ }			from '../modules/reformatFusviz/main'
 
 /*
@@ -34,6 +35,8 @@ genion_superdups = file("${params.superdups}", checkIfExists: true)
 gtfv104 = file("${params.gtf_2}", checkIfExists: true)
 ctat_genome_lib_dir = file("${params.genome_lib}", checkIfExists: true)
 bed_coverage = file("${params.bed_file}", checkIfExists: true )
+cytoband_file = file("${params.cytoband}", checkIfExists: true)
+
 
 
 
@@ -91,6 +94,8 @@ workflow NANOPORE_FUSION {
     //script to collect output from all fusioncallers into one spreadsheet per sample
     COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
 
+    //script to create dashboard from fusion caller outputs
+	DASHBOARD ( COLLECTOUT.out, cytoband_file, gtf)
 
     //script to merge and aggregate fusioncaller output to be used as fusviz input
     //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
