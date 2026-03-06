@@ -8,4 +8,4 @@ results_*/
 work/
 sequences/*
 !sequences/placeholder.fastq.gz
-nanopore_fusion.o*
+*.o*
