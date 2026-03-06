@@ -5,7 +5,7 @@ process GENION {
 	label 'process_medium'
 	//publishDir "results/${samples}", mode:'copy'     
 	input:
-		tuple val(samples), path(reads), file(minimap_paf)
+		tuple val(samples), path(reads), path(minimap_paf)
 		file(gtf)
 		file(genion_cdna)
 		file(genion_superdups)
@@ -14,9 +14,9 @@ process GENION {
 	script:
 	"""
 	if [ ! -f ${samples}.fastq ]; then
-		gunzip -c ${reads} > ${samples}.fastq
+		gunzip -c ${reads} > ${samples}.fastq     
 	fi
-	genion -i ${samples}.fastq --gtf ${gtf} --gpaf ${samples}_hg38_minimap.paf -s ${genion_cdna} -d ${genion_superdups} -o ${samples}_genion.tsv
+	genion -i ${samples}.fastq --gtf ${gtf} --gpaf ${minimap_paf} -s ${genion_cdna} -d ${genion_superdups} -o ${samples}_genion.tsv
 	awk 'BEGIN {OFS="\t"; print "gene","num_reads","ffigf-score","FiN-score","normal_counts","ranges"} {print \$2,\$5,\$3,\$4,\$6,\$8}' ${samples}_genion.tsv > ${samples}_genion_final.tsv
 	"""
 }

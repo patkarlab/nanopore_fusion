@@ -6,3 +6,5 @@ samplesheet.csv
 results/
 results_*/
 work/
+sequences/*
+!sequences/placeholder.fastq.gz

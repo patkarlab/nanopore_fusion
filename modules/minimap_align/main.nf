@@ -8,9 +8,10 @@ process MINIMAP_ALIGN {
 		tuple val(samples), path(reads)
 		path(reference_genome)
 	output:
-		tuple val(samples), path("${samples}_hg38_minimap.paf"),  emit: minimap_paf
+		tuple val(samples), path(reads), path("${samples}_hg38_minimap.paf")
 	script:
 	"""
+
 	minimap2 -c -t 128 -x map-ont ${reference_genome} ${reads}  > ${samples}_hg38_minimap.paf
 	"""
 }

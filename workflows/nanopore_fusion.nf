@@ -21,6 +21,7 @@ include { COORD_SORT} 				from '../modules/coord_sort/main'
 include { COLLECTOUT}           	from '../modules/collectout/main'
 include { DASHBOARD }				from '../modules/dashboard/main'
 include { REFORMATFUSVIZ }			from '../modules/reformatFusviz/main'
+include { Longshot;Nanocaller;ClairsTO;Clair_annotate;CombineCallers }                from '../modules/variant_calling/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,6 +30,7 @@ include { REFORMATFUSVIZ }			from '../modules/reformatFusviz/main'
 */
 
 reference_genome = file("${params.genome}", checkIfExists: true)
+ind_files = file("${params.genome_dir}/${params.ind_files}.*")
 gtf = file("${params.gtf}", checkIfExists: true)
 genion_cdna = file("${params.cdna}", checkIfExists: true)
 genion_superdups = file("${params.superdups}", checkIfExists: true)
@@ -71,7 +73,7 @@ workflow NANOPORE_FUSION {
     MINIMAP_ALIGN (samples_ch, reference_genome )
 
     // call fusions on paf using genion
-    GENION (samples_ch.join(MINIMAP_ALIGN.out.minimap_paf), gtf, genion_cdna, genion_superdups )
+    GENION (MINIMAP_ALIGN.out, gtf, genion_cdna, genion_superdups )
 
     //ctat-lr-fusion for RNA fusion
     CTAT(samples_ch, ctat_genome_lib_dir ) 
@@ -96,6 +98,13 @@ workflow NANOPORE_FUSION {
 
     //script to create dashboard from fusion caller outputs
 	DASHBOARD ( COLLECTOUT.out, cytoband_file, gtf)
+	
+	//variant calling
+	Longshot(COORD_SORT.out)
+	Nanocaller(COORD_SORT.out )
+	ClairsTO(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
+	Clair_annotate(ClairsTO.out)
+	CombineCallers(COVERAGE.out.join(Clair_annotate.out.join(Nanocaller.out.join(Longshot.out))))
 
     //script to merge and aggregate fusioncaller output to be used as fusviz input
     //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
