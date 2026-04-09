@@ -38,6 +38,7 @@ ctat_genome_lib_dir = file("${params.genome_lib}", checkIfExists: true)
 bed_coverage = file("${params.bed_file}", checkIfExists: true )
 cytoband_file = file("${params.cytoband}", checkIfExists: true)
 dorado_models_dir = file("${params.dorado_models_dir}", checkifExists: true)
+samplesheet_file = file(params.input)
 
 
 workflow NANOPORE_FUSION {
@@ -154,20 +155,69 @@ workflow NANOPORE_FUSION_BASECALL {
 
 main:
     pod5_ch = Channel.fromPath(params.pod5_dir)
+    samplesheet_ch = Channel.fromPath(params.input)
+    .splitCsv(header:false)
+    .map { row ->
+        tuple(row[0], row[1])
+    }
 
     // Basecalling + demultiplexing
-    BASECALL(pod5_ch, dorado_models_dir)
+    BASECALL(pod5_ch, dorado_models_dir, samplesheet_file)
 	
-    samples_ch = BASECALL.out.map { fq ->
-        def sample = fq.baseName
-        tuple(sample, fq)}
-    
+    BASECALL.out.view()
+
+
+    samples_ch = BASECALL.out
+	.flatten()
+        .map { fq ->
+            def sample = fq.name.replace(".fastq.gz","")
+            tuple(sample, fq)}
 
      //get read lengths
-     //SEQKIT(samples_ch )
+     SEQKIT(samples_ch )
 
      //plot read length histogram from seqkit tsv
-     //HISTOGRAM(SEQKIT.out )
+     HISTOGRAM(SEQKIT.out )
+
+    //align reads 
+    //DORADO_ALIGN(samples_ch, reference_genome )
+
+    // sort dorado bam by read names using samtools
+    //SAMTOOLS_SORT( DORADO_ALIGN.out.dorado_bam )
+
+    // calling fusion on dorado name-sorted bam
+    //LONGGF( SAMTOOLS_SORT.out.sorted_bam, gtf )
+
+    // align fastq with minimap to get paf file for genion
+    //MINIMAP_ALIGN (samples_ch, reference_genome )
+
+    // call fusions on paf using genion
+    //GENION (MINIMAP_ALIGN.out, gtf, genion_cdna, genion_superdups )
+
+    //ctat-lr-fusion for RNA fusion
+    //CTAT(samples_ch, ctat_genome_lib_dir )
+
+    //jaffal fusioncaller
+    //JAFFAL(samples_ch )
+
+    //sort dorado bam on coordinates using samtools
+    //COORD_SORT(DORADO_ALIGN.out.dorado_bam )
+
+    //calculate coverage over target regions from sorted bam using bedtools
+    //COVERAGE(COORD_SORT.out, bed_coverage )
+
+    // Calculate coverage over set thresholds in target regions from sorted, indexed bam using mosdepth
+    //COVERAGE_MOSDEPTH(COORD_SORT.out, bed_coverage ) | MOSDEPTH_SUMMARY
+
+    //script to collect output from all fusioncallers into one spreadsheet per sample
+    //COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
+
+    //script to create dashboard from fusion caller outputs
+    //DASHBOARD ( COLLECTOUT.out, cytoband_file, gtf)
+
+    //script to merge and aggregate fusioncaller output to be used as fusviz input
+    //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
+
 
 }	
 
@@ -179,4 +229,4 @@ workflow.onComplete {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+*/
