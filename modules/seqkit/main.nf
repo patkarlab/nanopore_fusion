@@ -10,7 +10,6 @@ process SEQKIT{
 		tuple val(samples), file("${samples}_seqkit.tsv"),  emit: seqkit_tsv
 	script:
 	"""
-	
-        seqkit fx2tab ${reads} -l -g -q -n -i -H > ${samples}_seqkit.tsv
+	seqkit fx2tab ${reads} -l -g -q -n -i -H > ${samples}_seqkit.tsv
 	"""
 }

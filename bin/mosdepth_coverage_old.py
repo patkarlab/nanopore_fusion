@@ -2,7 +2,6 @@
 
 import pandas as pd
 import argparse
-import sys
 
 parser = argparse.ArgumentParser(description="This script takes the sample.thresholds.bed.gz & sample.regions.bed.gz as input files, converts the number of bases at XX depth to percentage of bases at XX depth, adds mean depth from sample.regions.bed.gz, and also adds a column for region lengths")
 
@@ -12,20 +11,8 @@ parser.add_argument("-o","--outfile", required=True, help="Path to outfile")
 
 args = parser.parse_args()
 
-# Read thresholds file
-try:
-    thr_df = pd.read_csv(args.thresholds_file, sep="\t", comment="#", header=None)
-except pd.errors.EmptyDataError:
-    print("WARNING: thresholds file is empty. Writing empty output.", file=sys.stderr)
-    pd.DataFrame().to_csv(args.outfile, sep="\t", index=False)
-    sys.exit(0)
-
-# If thresholds file has only comments/header
-if thr_df.empty:
-    print("WARNING: thresholds file contains no coverage rows.", file=sys.stderr)
-    pd.DataFrame().to_csv(args.outfile, sep="\t", index=False)
-    sys.exit(0)
-
+# Read thresholds file 
+thr_df = pd.read_csv(args.thresholds_file, sep="\t", comment="#", header=None)
 thr_df.columns = ["chrom","start","end","region","1X","10X","30X","100X","200X"]
 
 # List of columns to convert
@@ -36,9 +23,6 @@ for col in columns_to_convert_numeric:
 # Compute region length
 thr_df["region_length"] = thr_df["end"] - thr_df["start"]
 
-# Prevent division by zero
-thr_df = thr_df[thr_df["region_length"] > 0]
-
 # Convert counts -> fractions
 for col in ["1X","10X","30X","100X","200X"]:
     thr_df["cov>="+col+"(%)"] = (thr_df[col] / thr_df["region_length"]) * 100
@@ -46,14 +30,8 @@ for col in ["1X","10X","30X","100X","200X"]:
 thr_df[['cov>=1X(%)', 'cov>=10X(%)', 'cov>=30X(%)', 'cov>=100X(%)', 'cov>=200X(%)']] = thr_df[['cov>=1X(%)', 'cov>=10X(%)', 'cov>=30X(%)', 'cov>=100X(%)', 'cov>=200X(%)']].round(3)
 
 # Read mean coverage and add column names
-try:
-    mean_df = pd.read_csv(args.regions_cov_file, sep="\t", header=None)
-except pd.errors.EmptyDataError:
-    print("WARNING: regions coverage file is empty.", file=sys.stderr)
-    mean_df = pd.DataFrame(columns=["chrom","start","end","region","mean_coverage"])
-
-if not mean_df.empty:
-    mean_df.columns = ["chrom","start","end","region","mean_coverage"]
+mean_df = pd.read_csv(args.regions_cov_file, sep="\t", header=None)
+mean_df.columns = ["chrom","start","end","region","mean_coverage"]
 
 # Merge the dfs
 summary_df = pd.merge(thr_df, mean_df[["chrom","start","end","mean_coverage"]],
@@ -67,3 +45,6 @@ summary_df = summary_df[[
 
 # Save the output
 summary_df.to_csv(args.outfile, sep="\t", index=False)
+
+
+

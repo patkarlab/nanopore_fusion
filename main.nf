@@ -12,7 +12,6 @@ nextflow.enable.dsl=2
 */
 
 include { NANOPORE_FUSION  } 		from './workflows/nanopore_fusion'
-include { NANOPORE_FUSION_BASECALL} 	from './workflows/nanopore_fusion'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -30,7 +29,7 @@ workflow ACTREC_NANOPORE_FUSION {
     //
     // WORKFLOW: Run pipeline
     //
-    NANOPORE_FUSION_BASECALL ()
+    NANOPORE_FUSION ()
 
 }
 

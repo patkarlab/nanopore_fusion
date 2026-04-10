@@ -3,7 +3,7 @@
 process GENION {
 	tag "${samples}"
 	label 'process_medium'
-	//publishDir "results/${samples}", mode:'copy'     
+	publishDir "results/${samples}", mode:'copy'     
 	input:
 		tuple val(samples), path(reads), path(minimap_paf)
 		file(gtf)

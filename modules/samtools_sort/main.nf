@@ -10,7 +10,8 @@ process SAMTOOLS_SORT {
 		tuple val(samples), path("${samples}_sorted.bam"),  emit: sorted_bam
 	script:
 	"""
-	samtools sort -n -o ${samples}_sorted.bam ${dorado_bam}
+	samtools view -bS ${dorado_bam} | samtools sort -n -o ${samples}_sorted.bam
+	#samtools sort -n -o ${samples}_sorted.bam ${dorado_bam}
 	"""
 }
 

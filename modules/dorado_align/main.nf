@@ -11,6 +11,6 @@ process DORADO_ALIGN {
 		tuple val(samples), file("${samples}.bam"),  emit: dorado_bam
 	script:   	
 	"""
-	dorado aligner -t 128 ${reference_genome} ${reads}  > ${samples}.bam
+	dorado aligner -t 128  ${reference_genome} ${reads}  > ${samples}.bam
 	"""
 }

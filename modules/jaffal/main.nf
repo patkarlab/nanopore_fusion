@@ -18,7 +18,7 @@ process JAFFAL {
 
     bpipe run /opt/JAFFA/JAFFAL.groovy ${reads} || true
 
-     # Always create TSV header
+	# Always create TSV header
     echo -e "fusion genes\tchrom1\tbase1\tstrand1\tchrom2\tbase2\tstrand2\tspanning reads\tcontig break\tclassification\tknown" > ${samples}_jaffal.tsv
 
     # If JAFFAL produced results, append them
@@ -34,7 +34,7 @@ process JAFFAL {
     else
         touch ${samples}_jaffal.fasta
     fi
-
+   
 
     #mv jaffa_results.fasta ${samples}_jaffal.fasta
     
