@@ -2,7 +2,7 @@
 
 process MINIMAP_ALIGN {
 	tag "${samples}"
-	label 'process_medium'
+	label 'process_high'
 	//publishDir "results/${samples}", mode:'copy'
 	input:
 		tuple val(samples), path(reads)

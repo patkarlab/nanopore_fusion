@@ -18,12 +18,13 @@ process JAFFAL {
 
     bpipe run /opt/JAFFA/JAFFAL.groovy ${reads} || true
 
+
 	# Always create TSV header
     echo -e "fusion genes\tchrom1\tbase1\tstrand1\tchrom2\tbase2\tstrand2\tspanning reads\tcontig break\tclassification\tknown" > ${samples}_jaffal.tsv
 
     # If JAFFAL produced results, append them
     if [ -s jaffa_results.csv ]; then
-        awk -F',' 'BEGIN {OFS="\\t"} {print \$2,\$3,\$4,\$5,\$6,\$7,\$8,\$11,\$16,\$17,\$18}' jaffa_results.csv >> ${samples}_jaffal.tsv
+        awk -F',' 'BEGIN {OFS="\\t"} NR>1 {print \$2,\$3,\$4,\$5,\$6,\$7,\$8,\$11,\$16,\$17,\$18}' jaffa_results.csv >> ${samples}_jaffal.tsv
     else
         echo "JAFFAL produced no results for ${samples}"
     fi

@@ -72,7 +72,7 @@ process Longcallr {
 process Clair3rna {
 	//publishDir "results/${samples}", mode:'copy'
 	tag "${samples}"
-	//label 'process_high'
+	label 'process_high'
 	input:
 		tuple val (samples), file(finalBam), file (finalBamBai)
 		path(reference_genome)
@@ -147,7 +147,7 @@ process vcf_filter {
 process ANNOVAR {
 	tag "${samples}"
 	label 'process_medium'
-	publishDir "${params.outdir}/${samples}/", mode: 'copy', pattern: '*.csv'
+	//publishDir "${params.outdir}/${samples}/", mode: 'copy', pattern: '*.csv'
 	input:
 		tuple val (samples), path(Vcf)
 		val(variant_caller)

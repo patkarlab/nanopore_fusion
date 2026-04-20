@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { softwareVersionsToYAML } 	from '../subworkflows/nf-core/utils_nfcore_pipeline/main'
+include { BASECALL }              from '../modules/basecall/main'
 include { SEQKIT } 		 			from '../modules/seqkit/main'
 include { HISTOGRAM }    			from '../modules/histogram/main'
 include { DORADO_ALIGN }	 		from '../modules/dorado_align/main'
@@ -37,10 +38,12 @@ ind_files = file("${params.genome_dir}/${params.ind_files}.*")
 gtf = file("${params.gtf}", checkIfExists: true)
 genion_cdna = file("${params.cdna}", checkIfExists: true)
 genion_superdups = file("${params.superdups}", checkIfExists: true)
-gtfv104 = file("${params.gtf_2}", checkIfExists: true)
+//gtfv104 = file("${params.gtf_2}", checkIfExists: true)
 ctat_genome_lib_dir = file("${params.genome_lib}", checkIfExists: true)
 bed_coverage = file("${params.bed_file}", checkIfExists: true )
 cytoband_file = file("${params.cytoband}", checkIfExists: true)
+dorado_models_dir = file("${params.dorado_models_dir}", checkifExists: true)
+samplesheet_file = file(params.input)
 
 longshot = params.longshot
 nanocaller = params.nanocaller
@@ -60,56 +63,56 @@ workflow NANOPORE_FUSION {
         }
         .set { samples_ch }
 
-    main: 
-    //get read lengths
-    SEQKIT(samples_ch )
+	main: 
+	//get read lengths
+	SEQKIT(samples_ch )
 
 	//plot read length histogram from seqkit tsv
 	HISTOGRAM(SEQKIT.out )
 
-    // align reads to hg38 reference genome using dorado
-    //DORADO_ALIGN(samples_ch, reference_genome )
+	// NOT TO  BE USED - align reads to hg38 reference genome using dorado
+	//DORADO_ALIGN(samples_ch, reference_genome )
 
-	// sort dorado bam by read names using samtools
-    //SAMTOOLS_SORT( DORADO_ALIGN.out.dorado_bam )
+	//NOT TO  BE USED - sort dorado bam by read names using samtools
+	//SAMTOOLS_SORT( DORADO_ALIGN.out.dorado_bam )
 
 	//align reads to reference using minimap
 	MINIMAP_SAM(samples_ch, reference_genome )
-    SAMTOOLS_SORT( MINIMAP_SAM.out )
+	SAMTOOLS_SORT( MINIMAP_SAM.out )
 
-    // calling fusion on dorado name-sorted bam
-    LONGGF( SAMTOOLS_SORT.out.sorted_bam, gtf )
-    
-    // align fastq with minimap to get paf file for genion
-    MINIMAP_ALIGN (samples_ch, reference_genome )
+	// calling fusion on dorado name-sorted bam
+	LONGGF( SAMTOOLS_SORT.out.sorted_bam, gtf )
 
-    // call fusions on paf using genion
-    GENION (MINIMAP_ALIGN.out, gtf, genion_cdna, genion_superdups )
+	// align fastq with minimap to get paf file for genion
+	MINIMAP_ALIGN (samples_ch, reference_genome )
 
-    //ctat-lr-fusion for RNA fusion
-    CTAT(samples_ch, ctat_genome_lib_dir ) 
+	// call fusions on paf using genion
+	GENION (MINIMAP_ALIGN.out, gtf, genion_cdna, genion_superdups )
+
+	//ctat-lr-fusion for RNA fusion
+	CTAT(samples_ch, ctat_genome_lib_dir ) 
 
 	//jaffal fusioncaller
-    JAFFAL(samples_ch )
+	JAFFAL(samples_ch )
 
-    //sort dorado bam on coordinates using samtools
-    COORD_SORT(MINIMAP_SAM.out )
+	//sort dorado bam on coordinates using samtools
+	COORD_SORT(MINIMAP_SAM.out )
 
-    //call RNA fusion on dorado coord-sorted bam
-    //FUSIONSEEKER(COORD_SORT.out.coord_sorted_bam, COORD_SORT.out.bam_index, reference_genome, gtfv104 )
+	//call RNA fusion on dorado coord-sorted bam
+	//FUSIONSEEKER(COORD_SORT.out.coord_sorted_bam, COORD_SORT.out.bam_index, reference_genome, gtfv104 )
 
 	//calculate coverage over target regions from sorted bam using bedtools
-    COVERAGE(COORD_SORT.out, bed_coverage )
+	COVERAGE(COORD_SORT.out, bed_coverage )
 
-    // Calculate coverage over set thresholds in target regions from sorted, indexed bam using mosdepth
-    COVERAGE_MOSDEPTH(COORD_SORT.out, bed_coverage ) | MOSDEPTH_SUMMARY
+	// Calculate coverage over set thresholds in target regions from sorted, indexed bam using mosdepth
+	COVERAGE_MOSDEPTH(COORD_SORT.out, bed_coverage ) | MOSDEPTH_SUMMARY
 
-    //script to collect output from all fusioncallers into one spreadsheet per sample
-    COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
+	//script to collect output from all fusioncallers into one spreadsheet per sample
+	COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
 
-    //script to create dashboard from fusion caller outputs
+	//script to create dashboard from fusion caller outputs
 	DASHBOARD ( COLLECTOUT.out, cytoband_file, gtf)
-	
+
 	//variant calling and annotation
 	Longshot(COORD_SORT.out, reference_genome, ind_files)
 	vcf_filter_longshot(Longshot.out, bed_coverage, longshot)
@@ -119,10 +122,10 @@ workflow NANOPORE_FUSION {
 	ClairsTO(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
 	ANNOVAR_ClairsTO(ClairsTO.out, clairsto)
 	Clair3rna(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
-    ANNOVAR_clair3rna(Clair3rna.out, clair3rna)
+	ANNOVAR_clair3rna(Clair3rna.out, clair3rna)
 	Longcallr(COORD_SORT.out, reference_genome, ind_files)
 	vcf_filter_longcallr(Longcallr.out, bed_coverage, longcallr)
-    ANNOVAR_longcallr(vcf_filter_longcallr.out, longcallr)
+	ANNOVAR_longcallr(vcf_filter_longcallr.out, longcallr)
 	//VarDict(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
 
 
@@ -132,8 +135,8 @@ workflow NANOPORE_FUSION {
 	//Clair_annotate(ClairsTO.out)
 	//CombineCallers(COVERAGE.out.join(Clair_annotate.out.join(Nanocaller.out.join(Longshot.out))))
 
-    //script to merge and aggregate fusioncaller output to be used as fusviz input
-    //REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
+	//script to merge and aggregate fusioncaller output to be used as fusviz input
+	//REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
 
 
 
@@ -155,6 +158,93 @@ workflow NANOPORE_FUSION {
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }
+
+workflow NANOPORE_FUSION_BASECALL {
+
+	main:
+	pod5_ch = Channel.fromPath(params.pod5_dir)
+	samplesheet_ch = Channel.fromPath(params.input)
+	.splitCsv(header:false)
+	.map { row ->
+		tuple(row[0], row[1])
+	}
+
+	// Basecalling + demultiplexing
+	BASECALL(pod5_ch, dorado_models_dir, samplesheet_file)
+
+	samples_ch = BASECALL.out
+        .flatten()
+        .map { fq ->
+            def sample = fq.name.replace(".fastq.gz","")
+            tuple(sample, fq)
+        }
+
+	//get read lengths
+	SEQKIT(samples_ch )
+
+	//plot read length histogram from seqkit tsv
+	HISTOGRAM(SEQKIT.out )
+
+	//NOT TO  BE USED - align reads
+	//DORADO_ALIGN(samples_ch, reference_genome )
+
+	//NOT TO  BE USED - sort dorado bam by read names using samtools
+	//SAMTOOLS_SORT( DORADO_ALIGN.out.dorado_bam )
+
+	//align reads to reference using minimap
+        //MINIMAP_SAM(samples_ch, reference_genome )
+        //SAMTOOLS_SORT( MINIMAP_SAM.out )
+
+	// calling fusion on dorado name-sorted bam
+	//LONGGF( SAMTOOLS_SORT.out.sorted_bam, gtf )
+
+	// align fastq with minimap to get paf file for genion
+	//MINIMAP_ALIGN (samples_ch, reference_genome )
+
+	// call fusions on paf using genion
+	//GENION (MINIMAP_ALIGN.out, gtf, genion_cdna, genion_superdups )
+
+	//ctat-lr-fusion for RNA fusion
+	//CTAT(samples_ch, ctat_genome_lib_dir )
+
+	//jaffal fusioncaller
+	//JAFFAL(samples_ch )
+
+	//sort dorado bam on coordinates using samtools
+	//COORD_SORT(DORADO_ALIGN.out.dorado_bam )
+
+	//calculate coverage over target regions from sorted bam using bedtools
+	//COVERAGE(COORD_SORT.out, bed_coverage )
+
+	// Calculate coverage over set thresholds in target regions from sorted, indexed bam using mosdepth
+	//COVERAGE_MOSDEPTH(COORD_SORT.out, bed_coverage ) | MOSDEPTH_SUMMARY
+
+	//script to collect output from all fusioncallers into one spreadsheet per sample
+	//COLLECTOUT (samples_ch, JAFFAL.out.jaffal_tsv.join(LONGGF.out.longgf_out.join(GENION.out.genion_tsv.join(CTAT.out.ctat_out.join(COVERAGE.out.join(MOSDEPTH_SUMMARY.out))))))
+
+	//script to create dashboard from fusion caller outputs
+	//DASHBOARD ( COLLECTOUT.out, cytoband_file, gtf)
+
+	//variant calling and annotation
+        //Longshot(COORD_SORT.out, reference_genome, ind_files)
+        //vcf_filter_longshot(Longshot.out, bed_coverage, longshot)
+        //ANNOVAR_longshot(vcf_filter_longshot.out, longshot)
+        //Nanocaller(COORD_SORT.out, reference_genome, ind_files, bed_coverage )
+        //ANNOVAR_nanocaller(Nanocaller.out, nanocaller)
+        //ClairsTO(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
+        //ANNOVAR_ClairsTO(ClairsTO.out, clairsto)
+        //Clair3rna(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
+        //ANNOVAR_clair3rna(Clair3rna.out, clair3rna)
+        //Longcallr(COORD_SORT.out, reference_genome, ind_files)
+        //vcf_filter_longcallr(Longcallr.out, bed_coverage, longcallr)
+        //ANNOVAR_longcallr(vcf_filter_longcallr.out, longcallr)
+        //VarDict(COORD_SORT.out, reference_genome, ind_files, bed_coverage)
+
+        //Combine_variants(ANNOVAR_ClairsTO.out.join(ANNOVAR_nanocaller.out.join(ANNOVAR_longshot.out.join(ANNOVAR_clair3rna.out.join(ANNOVAR_longcallr.out)))))
+
+	//script to merge and aggregate fusioncaller output to be used as fusviz input
+	//REFORMATFUSVIZ (samples_ch, LONGGF.out.join(GENION.out.join(CTAT.out.ctat_out.join(JAFFAL.out))))
+	}
 
 
 workflow.onComplete {
